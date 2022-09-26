@@ -7,10 +7,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
-
-def print_txt_as_pdf():
+def get_whole_file_name(file_name):
   cwd = os.getcwd()
-  source_file_name = f"{cwd}\\test_files\\test.txt"
+  whole_file_name = f"{cwd}\\{file_name}"
+  return whole_file_name
+
+
+def convert_txt_to_pdf(txt_file_name):
   pdf_file_name = tempfile.mktemp(".pdf")
 
   styles = getSampleStyleSheet()
@@ -18,11 +21,7 @@ def print_txt_as_pdf():
   normal = styles["Normal"]
 
   doc = SimpleDocTemplate (pdf_file_name)
-  #
-  # reportlab expects to see XML-compliant
-  #  data; need to escape ampersands &c.
-  #
-  text = html.escape(open(source_file_name).read()).splitlines()
+  text = html.escape(open(txt_file_name).read()).splitlines()
 
   #
   # Take the first line of the document as a
@@ -34,14 +33,22 @@ def print_txt_as_pdf():
     story.append(Spacer (1, 0.2 * inch))
 
   doc.build (story)
+  return pdf_file_name
+
+
+def print_txt_as_pdf(txt_file_name):
+  pdf_file_name = convert_txt_to_pdf(txt_file_name=txt_file_name)
   win32api.ShellExecute(0, "print", pdf_file_name, None, ".", 0)
 
-def print_pdf():
-  cwd = os.getcwd()
-  pdf_file_name = f"{cwd}\\test_files\\test.pdf"
+
+def print_pdf(pdf_file_name):
   win32api.ShellExecute (0, "print", pdf_file_name, None, ".", 0)
 
+
 if __name__ == "__main__":
-  # print_pdf()
-  print_txt_as_pdf()
+  test_txt_file = get_whole_file_name("test_files/test.txt")
+  print_txt_as_pdf(test_txt_file)
+
+  test_pdf_file = get_whole_file_name("test_files/test.pdf")
+  print_pdf(pdf_file_name=test_pdf_file)
 
